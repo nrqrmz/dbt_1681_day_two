@@ -11,19 +11,25 @@ sources:
           - name: date_date
             description: the date of purchase
           - name: orders_id
-            description: foreign key to order
+            description: foreign key to ship
           - name: pdt_id
             description: foreign key to product
           - name: revenue
             description: the amount paid by the customer to purchase the product, revenue = quantity * selling price
           - name: quantity
             description: the quantity of products purchased for this order
+        tests:
+          - unique:
+              column_name: "(orders_id || '-' || pdt_id)"
       - name: product
         identifier: raw_gz_product
         description: Greenweez products
         columns:
           - name: products_id
             description: table primary key
+            tests:
+              - unique
+              - not_null
           - name: purchase_price
             description: purchase price of a product
       - name: ship
@@ -32,6 +38,9 @@ sources:
         columns:
           - name: orders_id
             description: table primary key
+            tests:
+              - unique
+              - not_null
           - name: shipping_fee
             description: the price the customer pays for shipping
           - name: log_cost
