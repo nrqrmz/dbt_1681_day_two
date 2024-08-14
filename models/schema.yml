@@ -1,3 +1,4 @@
+
 version: 2
 
 sources:
@@ -7,6 +8,9 @@ sources:
       - name: sales
         identifier: raw_gz_sales
         description: Greenweez sales / we have one row per each product_id found in orders_id
+        freshness: 
+          warn_after: { count: 90, period: day }
+        loaded_at_field: "CAST(date_date AS TIMESTAMP)"
         columns:
           - name: date_date
             description: the date of purchase
