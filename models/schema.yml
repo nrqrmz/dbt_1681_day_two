@@ -53,7 +53,16 @@ sources:
             description: the shipping cost paid by Greenweez to the carrier/transporter
 
 models:
+  - name: stg_raw_product
+  - name: stg_raw_sales
+  - name: stg_raw_ship
   - name: int_sales_margin
+    description: margin calcultation per order line / product sale
+    columns:
+      - name: margin
+        description: Margin = Revenue - Purchase_cost
+      - name: Purchase_cost
+        description: Purchase_cost = Quantity * Purchase_price 
     tests:
       - unique:
           column_name: "(orders_id || '-' || products_id)"
@@ -71,3 +80,25 @@ models:
           column_name: revenue
       - not_null:
           column_name: quantity
+  - name: int_orders_margin
+    description: margin calcultation per order 
+    columns:
+      - name: orders_id
+        description: primary key
+      - name: margin
+        description: Margin = Revenue - Purchase_cost
+      - name: Purchase_cost
+        description: Purchase_cost = Quantity * Purchase_price 
+      - name: date_date
+        description: date of the order
+      - name: revenue
+        description: sum of revenue per order 
+      - name: quantity
+        description: sum of quantity per order
+  - name: int_orders_operational
+    description: operational margin calcultation per order 
+    columns:
+      - name: operational_margin 
+        description: Operational margin = margin + shipping fee - log_cost - ship_cost
+  - name: finance_days
+    description: finance calculation per days
