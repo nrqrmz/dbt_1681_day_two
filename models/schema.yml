@@ -1,0 +1,104 @@
+
+version: 2
+
+sources:
+  - name: raw
+    schema: gz_raw_data
+    tables:
+      - name: sales
+        identifier: raw_gz_sales
+        description: Greenweez sales / we have one row per each product_id found in orders_id
+        freshness: 
+          warn_after: { count: 90, period: day }
+        loaded_at_field: "CAST(date_date AS TIMESTAMP)"
+        columns:
+          - name: date_date
+            description: the date of purchase
+          - name: orders_id
+            description: foreign key to ship
+          - name: pdt_id
+            description: foreign key to product
+          - name: revenue
+            description: the amount paid by the customer to purchase the product, revenue = quantity * selling price
+          - name: quantity
+            description: the quantity of products purchased for this order
+        tests:
+          - unique:
+              column_name: "(orders_id || '-' || pdt_id)"
+      - name: product
+        identifier: raw_gz_product
+        description: Greenweez products
+        columns:
+          - name: products_id
+            description: table primary key
+            tests:
+              - unique
+              - not_null
+          - name: purchase_price
+            description: purchase price of a product
+      - name: ship
+        identifier: raw_gz_ship
+        description: Greenweez ship
+        columns:
+          - name: orders_id
+            description: table primary key
+            tests:
+              - unique
+              - not_null
+          - name: shipping_fee
+            description: the price the customer pays for shipping
+          - name: log_cost
+            description: the cost of preparing the parcen in the warehouse
+          - name: ship_cost
+            description: the shipping cost paid by Greenweez to the carrier/transporter
+
+models:
+  - name: stg_raw_product
+  - name: stg_raw_sales
+  - name: stg_raw_ship
+  - name: int_sales_margin
+    description: margin calcultation per order line / product sale
+    columns:
+      - name: margin
+        description: Margin = Revenue - Purchase_cost
+      - name: Purchase_cost
+        description: Purchase_cost = Quantity * Purchase_price 
+    tests:
+      - unique:
+          column_name: "(orders_id || '-' || products_id)"
+      - not_null:
+          column_name: orders_id
+      - not_null:
+          column_name: products_id
+      - not_null:
+          column_name: margin
+      - not_null:
+          column_name: Purchase_cost
+      - not_null:
+          column_name: date_date
+      - not_null:
+          column_name: revenue
+      - not_null:
+          column_name: quantity
+  - name: int_orders_margin
+    description: margin calcultation per order 
+    columns:
+      - name: orders_id
+        description: primary key
+      - name: margin
+        description: Margin = Revenue - Purchase_cost
+      - name: Purchase_cost
+        description: Purchase_cost = Quantity * Purchase_price 
+      - name: date_date
+        description: date of the order
+      - name: revenue
+        description: sum of revenue per order 
+      - name: quantity
+        description: sum of quantity per order
+  - name: int_orders_operational
+    description: operational margin calcultation per order 
+    columns:
+      - name: operational_margin 
+        description: Operational margin = margin + shipping fee - log_cost - ship_cost
+  - name: finance_days
+    description: finance calculation per days
