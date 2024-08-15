@@ -51,3 +51,23 @@ sources:
             description: the cost of preparing the parcen in the warehouse
           - name: ship_cost
             description: the shipping cost paid by Greenweez to the carrier/transporter
+
+models:
+  - name: int_sales_margin
+    tests:
+      - unique:
+          column_name: "(orders_id || '-' || products_id)"
+      - not_null:
+          column_name: orders_id
+      - not_null:
+          column_name: products_id
+      - not_null:
+          column_name: margin
+      - not_null:
+          column_name: Purchase_cost
+      - not_null:
+          column_name: date_date
+      - not_null:
+          column_name: revenue
+      - not_null:
+          column_name: quantity
